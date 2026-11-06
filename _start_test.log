@@ -1,0 +1,102 @@
+========================================
+ Sentence Rebuilder - Bitbucket Start
+========================================
+
+[1/2] Starting Python Socket Server...
+Waiting for Python server on 127.0.0.1:65432 (model load can take time)...
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+ERROR: Input redirection is not supported, exiting the process immediately.
+
+Python server did not start in time.
+Manual fallback:
+  cd /d "D:\Athabasca University\COMP 495\CapStone\source\python"
+  "C:\Program Files\Python310\python.exe" predictor_server.py
+

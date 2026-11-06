@@ -1,0 +1,3996 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Rebuilder - AI Text Completion</title>
+    <link rel="icon" type="image/x-icon" href="/frontend/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/frontend/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/frontend/favicon/favicon-16x16.png">
+    <link rel="apple-touch-icon" href="/frontend/favicon/apple-touch-icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-gradient-start: #f3f5f9;
+            --bg-gradient-mid: #edf1f8;
+            --bg-gradient-end: #f4f6fa;
+            --navbar-bg: rgba(247, 250, 255, 0.96);
+            --container-bg: #f5f7fc;
+            --text-primary: #142238;
+            --text-secondary: #445c7d;
+            --text-tertiary: #617898;
+            --card-bg: #eef3fb;
+            --input-bg: #e9eff8;
+            --input-border: #cbd8ea;
+            --button-primary: linear-gradient(135deg, #4e47e6 0%, #5d52f4 100%);
+            --accent-color: #4f46e5;
+            --header-color: #071a43;
+            --detail-bg: #edf3fb;
+            --reconstructed-bg: #e9fff3;
+            --reconstructed-text: #114f38;
+            --reconstructed-border: #1faa67;
+            --error-bg: #fef2f2;
+            --error-text: #991b1b;
+            --error-border: #ef4444;
+            --history-bg: #f1f5fb;
+            --history-border: #d7e2f1;
+            --history-hover: #e7edf8;
+            --bar-bg: #cfd9e8;
+            --bar-fill: #5a52f7;
+            --bar-mid: #8092ad;
+            --bar-low: #9aa9bf;
+            --success-pill-bg: #d9f8e8;
+            --success-pill-text: #0b6c40;
+        }
+
+/* darkmode toggle settings*/
+        body.dark-mode {
+            --bg-gradient-start: #020a22;
+            --bg-gradient-mid: #031033;
+            --bg-gradient-end: #020a22;
+            --navbar-bg: rgba(2, 10, 34, 0.96);
+            --container-bg: #041332;
+            --text-primary: #eff5ff;
+            --text-secondary: #9fb4d2;
+            --text-tertiary: #7f97b8;
+            --card-bg: #081a42;
+            --input-bg: #071632;
+            --input-border: #1f3d66;
+            --button-primary: linear-gradient(135deg, #4e47e6 0%, #5d52f4 100%);
+            --accent-color: #6b6eff;
+            --header-color: #f8fbff;
+            --detail-bg: #091c43;
+            --reconstructed-bg: #083d2c;
+            --reconstructed-text: #9ef0ca;
+            --reconstructed-border: #2ac080;
+            --error-bg: #7f1d1d;
+            --error-text: #fecaca;
+            --error-border: #ef4444;
+            --history-bg: #041234;
+            --history-border: #1c3860;
+            --history-hover: #0a214a;
+            --bar-bg: #354f73;
+            --bar-fill: #675fff;
+            --bar-mid: #7f94af;
+            --bar-low: #67809f;
+            --success-pill-bg: #164e3b;
+            --success-pill-text: #9ef0ca;
+        }
+
+        body {
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            padding: 0;
+            transition: background 0.3s ease;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Navigation bar */
+        .navbar {
+            background: var(--navbar-bg);
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        .navbar-brand {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: "Georgia", "Times New Roman", serif;
+            color: var(--header-color);
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .nav-btn.login {
+            background: transparent;
+            color: var(--header-color);
+            border: 2px solid var(--header-color);
+        }
+
+        .nav-btn.login:hover {
+            background: var(--header-color);
+            color: white;
+        }
+
+        .nav-btn.signup {
+            background: var(--button-primary);
+            color: white;
+        }
+
+        .nav-btn.signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn.logout {
+            background: transparent;
+            color: var(--header-color);
+            border: 2px solid var(--header-color);
+        }
+
+        .nav-btn.logout:hover {
+            background: var(--header-color);
+            color: white;
+        }
+
+        .user-pill {
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--input-border);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /*darkmode toggle */
+        .dark-mode-toggle {
+            background: transparent;
+            border: 2px solid var(--header-color);
+            color: var(--header-color);
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 700;
+            min-width: 68px;
+            transition: all 0.3s;
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--header-color);
+            color: white;
+        }
+
+        /* primary layout */
+        .main-wrapper {
+            max-width: 1400px;
+            margin: 28px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        /* history sidebar */
+        .history-sidebar {
+            background: var(--history-bg);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+            position: sticky;
+            top: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .history-header h3 {
+            color: var(--text-primary);
+            font-size: 1.2em;
+        }
+
+        .clear-history-btn {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .clear-history-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .history-item {
+            background: var(--input-bg);
+            border: 1px solid var(--history-border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            background: var(--history-hover);
+            border-color: var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .history-item-text {
+            color: var(--text-primary);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+
+        .history-item-meta {
+            color: var(--text-tertiary);
+            font-size: 0.75em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item-badge {
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .history-empty {
+            color: var(--text-tertiary);
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* primary container */
+        .container {
+            background: var(--container-bg);
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            padding: 40px;
+            transition: all 0.3s ease;
+        }
+
+        /*header section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--header-color);
+            margin-bottom: 14px;
+            font-size: 3.25rem;
+            font-weight: 700;
+            font-family: "Georgia", "Times New Roman", serif;
+            transition: color 0.3s ease;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            max-width: 940px;
+            margin: 0 auto;
+            transition: color 0.3s ease;
+        }
+
+        /*cache status*/
+        .cache-status {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .cache-status-text {
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .cache-status-text strong {
+            color: var(--accent-color);
+        }
+
+        .clear-cache-btn {
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .clear-cache-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: var(--card-bg);
+            padding: 22px;
+            border-radius: 12px;
+            border: 1px solid var(--input-border);
+            transition: all 0.3s ease;
+        }
+
+        .info-card h3 {
+            color: var(--header-color);
+            margin-bottom: 10px;
+            font-size: 1.35rem;
+            transition: color 0.3s ease;
+        }
+
+        .info-card p {
+            color: var(--text-tertiary);
+            line-height: 1.6;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .info-card code {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        /*mode tab to switch between best and top 3 */
+        .mode-tabs {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--input-border);
+        }
+
+        .tab-btn {
+            padding: 12px 4px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .batch-hero {
+            text-align: center;
+            margin: 6px auto 28px;
+            max-width: 760px;
+        }
+
+        .batch-hero h2 {
+            color: var(--header-color);
+            font-family: "Georgia", "Times New Roman", serif;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .batch-hero p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Batch Upload tab*/
+        .batch-upload {
+            background: var(--input-bg);
+            padding: 52px 28px;
+            border-radius: 18px;
+            text-align: center;
+            border: 2px dashed var(--input-border);
+            transition: all 0.3s;
+            cursor: pointer;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .batch-upload:hover {
+            border-color: var(--accent-color);
+            background: var(--detail-bg);
+        }
+
+        .batch-upload.drag-over {
+            border-color: var(--accent-color);
+            background: var(--detail-bg);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            border: 1px solid var(--input-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            background: var(--container-bg);
+        }
+
+        .upload-text {
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: var(--text-tertiary);
+            font-size: 1.1rem;
+            margin-bottom: 22px;
+        }
+
+        .upload-btn {
+            padding: 12px 30px;
+            background: var(--button-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .batch-info {
+            background: var(--input-bg);
+            padding: 24px;
+            border-radius: 14px;
+            margin-top: 20px;
+            display: none;
+            border: 1px solid var(--input-border);
+        }
+
+        .batch-info.active {
+            display: block;
+        }
+
+        .batch-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 18px;
+        }
+
+        .batch-stat {
+            background: var(--container-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--input-border);
+        }
+
+        .batch-stat-value {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .batch-stat-label {
+            color: var(--text-tertiary);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .batch-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .batch-actions button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .process-batch-btn {
+            background: var(--button-primary);
+            color: white;
+        }
+
+        .download-batch-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .cancel-batch-btn {
+            background: var(--error-border);
+            color: white;
+        }
+
+        .batch-mode-btn {
+            padding: 15px;
+            border: 1px solid var(--input-border);
+            background: var(--container-bg);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .batch-mode-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--input-bg);
+        }
+
+        .batch-mode-btn.active {
+            background: var(--button-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Confidence Bars */
+        .confidence-bar-container {
+            margin: 10px 0 0;
+        }
+
+        .confidence-bar-wrapper {
+            margin-bottom: 14px;
+        }
+
+        .confidence-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 8px;
+        }
+
+        .confidence-word {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .confidence-value {
+            color: var(--text-secondary);
+            font-size: 0.96rem;
+            white-space: nowrap;
+        }
+
+        .confidence-bar {
+            height: 10px;
+            background: var(--bar-bg);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 999px;
+        }
+
+        .confidence-high {
+            background: linear-gradient(90deg, var(--bar-fill), #6a63ff);
+        }
+
+        .confidence-medium {
+            background: linear-gradient(90deg, var(--bar-mid), #8fa0b8);
+        }
+
+        .confidence-low {
+            background: linear-gradient(90deg, var(--bar-low), #a8b5c7);
+        }
+
+        .batch-progress {
+            background: var(--input-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .batch-progress.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--container-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+            border: 2px solid var(--input-border);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--button-primary);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .batch-results {
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .batch-result-item {
+            background: var(--detail-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .batch-result-input {
+            color: var(--text-tertiary);
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .batch-result-output {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: var(--input-bg);
+            padding: 26px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--input-border);
+        }
+
+        label {
+            display: block;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            transition: color 0.3s ease;
+        }
+
+        .textarea-wrapper {
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 18px;
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            min-height: 150px;
+            transition: all 0.3s;
+            background: var(--container-bg);
+            color: var(--text-primary);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* quick insert buttons */
+        .quick-insert {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .insert-btn {
+            padding: 10px 18px;
+            background: var(--container-bg);
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insert-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .insert-btn span {
+            font-size: 1.2em;
+        }
+
+        /*mode slection bar */
+        .mode-section {
+            margin-bottom: 25px;
+        }
+
+        .mode-section label {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .mode-btn {
+            padding: 15px;
+            border: 1px solid var(--input-border);
+            background: var(--container-bg);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .mode-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--input-bg);
+        }
+
+        .mode-btn.active {
+            background: var(--button-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        .mode-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /*send button to initiate processing*/
+        .submit-btn {
+            width: 100%;
+            padding: 17px;
+            background: var(--button-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /*loading*/
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: var(--input-bg);
+            border-radius: 15px;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid var(--input-border);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        /*result display */
+        .result {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .result.active {
+            display: block;
+        }
+
+        .result-header {
+            background: transparent;
+            color: var(--text-primary);
+            padding: 0;
+            border-radius: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .result-header h2 {
+            font-size: 2.3rem;
+            margin-bottom: 0;
+            color: var(--header-color);
+            font-family: "Georgia", "Times New Roman", serif;
+        }
+
+        .result-status {
+            background: var(--success-pill-bg);
+            color: var(--success-pill-text);
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .result-meta {
+            color: var(--text-secondary);
+            font-size: 0.98rem;
+            margin-bottom: 16px;
+        }
+
+        .solved-section {
+            margin-bottom: 20px;
+        }
+
+        .solved-label {
+            display: inline-block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--success-pill-text);
+            margin-bottom: 8px;
+        }
+
+        .reconstructed {
+            background: var(--reconstructed-bg);
+            padding: 20px;
+            font-size: 1.2rem;
+            line-height: 1.65;
+            color: var(--reconstructed-text);
+            font-family: 'Courier New', monospace;
+            border: 1px solid var(--reconstructed-border);
+            border-left: 5px solid var(--reconstructed-border);
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .reconstructed-change {
+            background: rgba(79, 70, 229, 0.18);
+            border: 1px solid rgba(79, 70, 229, 0.45);
+            border-radius: 6px;
+            padding: 0 5px;
+            margin: 0 1px;
+            display: inline-block;
+        }
+
+        .explain-toggle {
+            margin-top: 12px;
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            background: var(--detail-bg);
+            padding: 10px 12px;
+        }
+
+        .explain-toggle summary {
+            cursor: pointer;
+            color: var(--header-color);
+            font-weight: 700;
+            font-size: 0.95rem;
+            user-select: none;
+        }
+
+        .explain-content {
+            margin-top: 10px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .explain-note {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            margin: 0;
+        }
+
+        .explain-row {
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            background: var(--container-bg);
+            padding: 10px 12px;
+        }
+
+        .explain-row-title {
+            color: var(--header-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .explain-row-body {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .result-body {
+            background: var(--container-bg);
+            padding: 25px;
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .prediction-sections {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .prediction-section {
+            background: var(--detail-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .prediction-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .prediction-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .prediction-section-header h3 {
+            margin: 0;
+            color: var(--header-color);
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .section-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(79, 70, 229, 0.15);
+            color: var(--accent-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .prediction-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .prediction-item {
+            padding: 14px;
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            background: var(--container-bg);
+        }
+
+        .prediction-item-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .prediction-item-label {
+            font-family: 'Courier New', monospace;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 0.98rem;
+        }
+
+        .prediction-item-type {
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .alt-toggle {
+            margin-top: 10px;
+            border-top: 1px dashed var(--input-border);
+            padding-top: 10px;
+        }
+
+        .alt-toggle summary {
+            cursor: pointer;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-size: 0.86rem;
+            user-select: none;
+        }
+
+        /* Error */
+        .error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid var(--error-border);
+            margin-top: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .error strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .history-sidebar {
+                position: relative;
+                top: 0;
+                max-height: 400px;
+            }
+
+            h1 {
+                font-size: 2.9rem;
+            }
+
+            .subtitle {
+                font-size: 1.15rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 14px 18px;
+                align-items: flex-start;
+            }
+
+            .navbar-brand {
+                font-size: 1.8rem;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .cache-status {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .mode-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .batch-actions {
+                flex-direction: column;
+            }
+
+            h1 {
+                font-size: 2.3rem;
+                text-align: center;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .subtitle {
+                font-size: 1.05rem;
+                text-align: center;
+                margin: 0;
+            }
+
+            .quick-insert {
+                flex-direction: column;
+            }
+
+            .insert-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .submit-btn {
+                font-size: 1.05rem;
+            }
+
+            .upload-text {
+                font-size: 1.45rem;
+            }
+
+            .upload-subtext {
+                font-size: 0.95rem;
+            }
+
+            .batch-hero h2 {
+                font-size: 2rem;
+            }
+
+            .batch-hero p {
+                font-size: 1rem;
+            }
+
+            .batch-upload {
+                padding: 34px 18px;
+            }
+
+            .prediction-sections {
+                grid-template-columns: 1fr;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .result-header h2 {
+                font-size: 1.85rem;
+            }
+        }
+
+        /*style of scrollbar */
+        .history-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history-sidebar::-webkit-scrollbar-track {
+            background: var(--input-bg);
+            border-radius: 10px;
+        }
+
+        .history-sidebar::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 10px;
+        }
+
+        .auth-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .auth-modal.active {
+            display: flex;
+        }
+
+        .auth-card {
+            background: var(--container-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            color: var(--text-primary);
+        }
+
+        .auth-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .auth-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: var(--header-color);
+        }
+
+        .auth-close {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .auth-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .auth-field input {
+            padding: 10px 12px;
+            border: 2px solid var(--input-border);
+            border-radius: 10px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .auth-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .auth-submit {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: var(--button-primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-switch {
+            background: transparent;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid var(--error-border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .password-rules {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            line-height: 1.4;
+        }
+
+        .report-btn {
+            margin-top: 12px;
+            border: 1px solid var(--card-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .report-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .feedback-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2100;
+            padding: 20px;
+        }
+
+        .feedback-modal.active {
+            display: flex;
+        }
+
+        .feedback-card {
+            background: var(--container-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            width: 100%;
+            max-width: 540px;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .feedback-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--header-color);
+        }
+
+        .feedback-close {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .feedback-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .feedback-field textarea {
+            min-height: 86px;
+            resize: vertical;
+            padding: 10px 12px;
+            border: 2px solid var(--input-border);
+            border-radius: 10px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .feedback-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            background: var(--input-bg);
+        }
+
+        .feedback-categories label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.92rem;
+            color: var(--text-primary);
+        }
+
+        .feedback-preview {
+            border: 1px solid var(--card-border);
+            background: var(--input-bg);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            line-height: 1.45;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .feedback-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .feedback-submit-btn {
+            border: none;
+            border-radius: 10px;
+            background: var(--button-primary);
+            color: #fff;
+            font-weight: 700;
+            padding: 10px 14px;
+            cursor: pointer;
+        }
+
+        .feedback-cancel-btn {
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 10px 14px;
+            cursor: pointer;
+        }
+
+        .profile-page {
+            display: none;
+            width: 100%;
+            background: transparent;
+            padding: 24px 20px 30px;
+        }
+
+        .profile-page.active {
+            display: block;
+        }
+
+        .profile-shell {
+            max-width: 980px;
+            margin: 0 auto;
+            background: var(--container-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .profile-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--header-color);
+        }
+
+        .profile-close {
+            border: 1px solid var(--card-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            cursor: pointer;
+            line-height: 1.2;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: 600;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .profile-card {
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .profile-card h4 {
+            margin: 0 0 8px;
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+        }
+
+        .profile-card p {
+            margin: 0;
+            color: var(--text-primary);
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .profile-section {
+            margin-top: 18px;
+        }
+
+        .profile-section h3 {
+            margin-bottom: 10px;
+            color: var(--header-color);
+        }
+
+        .profile-list {
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .profile-list-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--card-border);
+            cursor: pointer;
+        }
+
+        .profile-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-list-empty {
+            padding: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .profile-danger {
+            margin-top: 22px;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--error-border);
+            background: var(--error-bg);
+        }
+
+        .profile-danger button {
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            background: #b42318;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .profile-metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .profile-metrics-table th,
+        .profile-metrics-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--card-border);
+            text-align: left;
+            font-size: 0.92rem;
+        }
+
+        .profile-metrics-table th {
+            color: var(--text-tertiary);
+            font-weight: 700;
+        }
+
+        .profile-metrics-table tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- navigation bar -->
+    <nav class="navbar">
+        <div class="navbar-brand" onclick="goHome()" role="button" tabindex="0" aria-label="Go to home page">
+            Sentence Rebuilder
+        </div>
+        <div class="navbar-menu">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle color mode">
+                Dark
+            </button>
+            <div class="user-pill" id="userPill" style="display: none;" onclick="openProfilePage()" role="button" tabindex="0" aria-label="Open profile page">
+                Signed in: <span id="usernameDisplay"></span>
+            </div>
+            <button class="nav-btn login" id="profileBtn" style="display: none;" onclick="openProfilePage()">Profile</button>
+            <button class="nav-btn login" id="loginBtn" onclick="showLogin()">Log in</button>
+            <button class="nav-btn signup" id="signupBtn" onclick="showSignup()">Sign Up</button>
+            <button class="nav-btn logout" id="logoutBtn" style="display: none;" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="auth-modal" id="authModal">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-title" id="authTitle">Login</div>
+                <button class="auth-close" onclick="closeAuth()">x</button>
+            </div>
+            <div id="authError" class="auth-error" style="display: none;"></div>
+
+            <div id="authLoginForm">
+                <div class="auth-field">
+                    <label for="loginUsername">Username or Email</label>
+                    <input id="loginUsername" type="text" autocomplete="username" placeholder="Username">
+                </div>
+                <div class="auth-field">
+                    <label for="loginPassword">Password</label>
+                    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
+                </div>
+                <div class="auth-actions">
+                    <button class="auth-submit" onclick="submitLogin()">Login</button>
+                    <button class="auth-switch" onclick="switchAuthMode('signup')">Need an account? Sign up</button>
+                </div>
+            </div>
+
+            <div id="authSignupForm" style="display: none;">
+                <div class="auth-field">
+                    <label for="signupUsername">Username</label>
+                    <input id="signupUsername" type="text" autocomplete="username" placeholder="Noel">
+                </div>
+                <div class="auth-field">
+                    <label for="signupEmail">Email</label>
+                    <input id="signupEmail" type="email" autocomplete="email" placeholder="noel@example.com">
+                </div>
+                <div class="auth-field">
+                    <label for="signupFullName">Full Name</label>
+                    <input id="signupFullName" type="text" autocomplete="name" placeholder="Noel">
+                </div>
+                <div class="auth-field">
+                    <label for="signupPassword">Password</label>
+                    <input id="signupPassword" type="password" autocomplete="new-password" placeholder="Create a password">
+                    <div class="password-rules">
+                        Password rules: minimum 6 characters, at least one number, and at least one special character.
+                        Do not use: <code>` ~ , ' &lt; &gt; "</code>
+                    </div>
+                </div>
+                <div class="auth-actions">
+                    <button class="auth-submit" onclick="submitSignup()">Create Account</button>
+                    <button class="auth-switch" onclick="switchAuthMode('login')">Already have an account? Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="feedback-modal" id="feedbackModal">
+        <div class="feedback-card">
+            <div class="feedback-header">
+                <div class="feedback-title">Report Prediction Error</div>
+                <button class="feedback-close" onclick="closeFeedbackModal()">x</button>
+            </div>
+            <div id="feedbackError" class="auth-error" style="display: none;"></div>
+            <div class="feedback-field">
+                <label>Error Category</label>
+                <div class="feedback-categories">
+                    <label><input type="checkbox" name="feedbackCategory" value="gender">Gender</label>
+                    <label><input type="checkbox" name="feedbackCategory" value="words">Words</label>
+                    <label><input type="checkbox" name="feedbackCategory" value="regions">Regions</label>
+                    <label><input type="checkbox" name="feedbackCategory" value="names">Names</label>
+                    <label><input type="checkbox" name="feedbackCategory" value="tense">Tense</label>
+                    <label><input type="checkbox" name="feedbackCategory" value="other">Other</label>
+                </div>
+            </div>
+            <div class="feedback-field">
+                <label for="feedbackCorrectedSentence">Corrected Sentence (optional)</label>
+                <textarea id="feedbackCorrectedSentence" placeholder="Write the correct sentence if you want to provide it."></textarea>
+            </div>
+            <div class="feedback-field">
+                <label for="feedbackNotes">Additional Notes (optional)</label>
+                <textarea id="feedbackNotes" placeholder="Describe what went wrong (gender, wording, place, tense, etc.)."></textarea>
+            </div>
+            <div class="feedback-preview" id="feedbackPredictedPreview"></div>
+            <div class="feedback-actions">
+                <button class="feedback-cancel-btn" onclick="closeFeedbackModal()">Cancel</button>
+                <button class="feedback-submit-btn" id="feedbackSubmitBtn" onclick="submitFeedback()">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-wrapper" id="mainPage">
+        <!-- history Sidebar -->
+        <aside class="history-sidebar">
+            <div class="history-header">
+                <h3>User History</h3>
+                <button class="clear-history-btn" onclick="clearHistory()">Clear All</button>
+            </div>
+            <div id="historyList" class="history-list">
+                <div class="history-empty">No history yet. </div>
+            </div>
+        </aside>
+
+        <!-- primary Container -->
+        <div class="container">
+            <!-- Header -->
+            <div class="header-section">
+                <h1>English Sentence Rebuilder</h1>
+                <p class="subtitle">Powered by BERT AI, pattern matching, and dictionary analysis. Reconstruct complete sentences by filling missing words or letters with high-confidence predictions.</p>
+            </div>
+
+            <!-- Cache Status -->
+            <div class="cache-status">
+                <div class="cache-status-text">
+                    <strong>Cache:</strong> <span id="cacheCount">0</span> predictions cached
+                </div>
+                <button class="clear-cache-btn" onclick="clearCache()">Clear Cache</button>
+            </div>
+
+            <!-- Mode Tabs -->
+            <div class="mode-tabs">
+                <button class="tab-btn active" data-tab="single" onclick="switchTab('single')">Single Sentence</button>
+                <button class="tab-btn" data-tab="batch" onclick="switchTab('batch')">Batch Processing</button>
+            </div>
+
+            <!-- Single Sentence Tab -->
+            <div class="tab-content active" id="singleTab">
+                <!-- Info Cards -->
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h3>Missing Words</h3>
+                        <p>Use <code>___</code> (three underscores) to mark where words are missing in your sentence.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Missing Letters</h3>
+                        <p>Use <code>_</code> (single underscore) within words to indicate missing letters, like <code>j_mp</code>.</p>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="input-section">
+                    <label for="sentence">Sentence Input</label>
+                    <div class="textarea-wrapper">
+                        <textarea 
+                            id="sentence" 
+                            placeholder="Enter your sentence and use underscores for missing words or letters."
+                        >Good ___. T_e _ouse is on fi_e. ___ _he fir_fi_hters.</textarea>
+                    </div>
+                    
+                    <!-- Quick Insert Buttons -->
+                    <div class="quick-insert">
+                        <button class="insert-btn" onclick="insertBlank('letter')">
+                            <span>_</span>
+                            Insert Letter Blank
+                        </button>
+                        <button class="insert-btn" onclick="insertBlank('word')">
+                            <span>___</span>
+                            Insert Word Blank
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mode Selection -->
+                <div class="mode-section">
+                    <label>Prediction Mode</label>
+                    <div class="mode-selector">
+                        <button class="mode-btn active" data-mode="best">
+                            <div>Best Only</div>
+                            <div class="mode-description">Single best prediction</div>
+                        </button>
+                        <button class="mode-btn" data-mode="top3">
+                            <div>Top 3</div>
+                            <div class="mode-description">Three best predictions</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="submit-btn" id="submitBtn">
+                    Rebuild Sentence
+                </button>
+
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p id="loadingPhaseText">Processing your sentence. Please wait.</p>
+                </div>
+
+                <!-- Result -->
+                <div class="result" id="result"></div>
+            </div>
+
+            <!-- Batch Processing Tab -->
+            <div class="tab-content" id="batchTab">
+                <div class="batch-hero">
+                    <h2>Batch Processing</h2>
+                    <p>Upload a text file containing multiple sentences to process them all at once. Results can be downloaded as JSON with performance metrics.</p>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="batch-upload" id="batchUpload">
+                    <div class="upload-icon">UP</div>
+                    <div class="upload-text">Click to upload or drag and drop</div>
+                    <div class="upload-subtext">TXT, CSV or JSON files (max 2MB)</div>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        Choose File
+                    </button>
+                    <input type="file" id="fileInput" class="file-input" accept=".txt,.csv,.json" onchange="handleFileSelect(event)">
+                </div>
+
+                <!-- Batch Info -->
+                <div class="batch-info" id="batchInfo">
+                    <h3 style="color: var(--text-primary); margin-bottom: 15px;">File Loaded</h3>
+                    <p id="fileName" style="color: var(--text-tertiary); margin-bottom: 10px;"></p>
+                    
+                    <div class="batch-stats">
+                        <div class="batch-stat">
+                            <div class="batch-stat-value" id="sentenceCount">0</div>
+                            <div class="batch-stat-label">Sentences</div>
+                        </div>
+                        <div class="batch-stat">
+                            <div class="batch-stat-value" id="blankCount">0</div>
+                            <div class="batch-stat-label">Total Blanks</div>
+                        </div>
+                    </div>
+
+                    <!-- Mode Selection for Batch -->
+                    <div class="mode-section" style="margin-top: 20px;">
+                        <label>Batch Prediction Mode:</label>
+                        <div class="mode-selector">
+                            <button class="batch-mode-btn active" data-mode="best" onclick="selectBatchMode('best')">Best Only</button>
+                            <button class="batch-mode-btn" data-mode="top3" onclick="selectBatchMode('top3')">Top 3</button>
+                        </div>
+                    </div>
+
+                    <div class="batch-actions">
+                        <button class="process-batch-btn" onclick="processBatch()">
+                            Process All Sentences
+                        </button>
+                        <button class="cancel-batch-btn" onclick="cancelBatch()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Batch Progress -->
+                <div class="batch-progress" id="batchProgress">
+                    <h3 style="color: var(--text-primary); margin-bottom: 10px;">Processing...</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                    </div>
+                    <p style="color: var(--text-tertiary); text-align: center;">
+                        <span id="currentSentence">0</span> of <span id="totalSentences">0</span> sentences processed
+                    </p>
+                </div>
+
+                <!-- Batch Results -->
+                <div id="batchResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <section class="profile-page" id="profilePage" aria-hidden="true">
+        <div class="profile-shell">
+            <div class="profile-header">
+                <div class="profile-title">User Profile</div>
+                <button class="profile-close" onclick="closeProfilePage()" aria-label="Return to sentence rebuilder">Back to Rebuilder</button>
+            </div>
+
+            <div class="profile-grid" id="profileSummary"></div>
+
+            <div class="profile-section">
+                <h3>Performance Metrics (Model Comparison)</h3>
+                <div id="profileMetrics"></div>
+            </div>
+
+            <div class="profile-section">
+                <h3>Solved Sentences (Account History)</h3>
+                <div class="profile-list" id="profileSolvedList"></div>
+            </div>
+
+            <div class="profile-section">
+                <h3>Cached Sentences (Browser Cache)</h3>
+                <div class="profile-list" id="profileCacheList"></div>
+            </div>
+
+            <div class="profile-danger">
+                <strong>Delete Profile</strong>
+                <p style="margin-top: 6px;">This permanently deletes your account, history, and preferences.</p>
+                <button onclick="deleteCurrentProfile()">Delete My Profile</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+
+        // STORAGE MANAGEMENT
+
+        const STORAGE_KEYS = {
+            DARK_MODE: 'sentenceRebuilder_darkMode',
+            HISTORY: 'sentenceRebuilder_history',
+            CACHE: 'sentenceRebuilder_cache',
+            PREFERENCES: 'sentenceRebuilder_preferences',
+            USER: 'sentenceRebuilder_user'
+        };
+
+        const MAX_HISTORY_ITEMS = 50;
+        const MAX_CACHE_ITEMS = 100;
+        const CACHE_EXPIRY_DAYS = 7;
+
+        let currentUser = null;
+        let csrfToken = null;
+        let currentFeedbackContext = null;
+
+        function getUserKey() {
+            if (currentUser && currentUser.uuid) return currentUser.uuid;
+            if (currentUser && currentUser.username) return currentUser.username;
+            return 'guest';
+        }
+
+        function getUserStorageKey(baseKey) {
+            return `${baseKey}:${getUserKey()}`;
+        }
+
+        // DARK MODE
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.toggle('dark-mode');
+            localStorage.setItem(STORAGE_KEYS.DARK_MODE, isDark);
+            
+            // Update button label
+            const toggle = document.querySelector('.dark-mode-toggle');
+            toggle.textContent = isDark ? 'Light' : 'Dark';
+        }
+
+        function loadDarkMode() {
+            const isDark = localStorage.getItem(STORAGE_KEYS.DARK_MODE) === 'true';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+            }
+            document.querySelector('.dark-mode-toggle').textContent = isDark ? 'Light' : 'Dark';
+        }
+
+                // HISTORY MANAGEMENT
+
+        async function saveToHistory(sentence, result, mode) {
+            let history = JSON.parse(localStorage.getItem(getUserStorageKey(STORAGE_KEYS.HISTORY)) || '[]');
+
+            const historyItem = {
+                id: Date.now(),
+                sentence: sentence,
+                reconstructed: result.reconstructed_sentence || null,
+                mode: mode,
+                type: result.type,
+                timestamp: new Date().toISOString(),
+                predictions: result
+            };
+
+            history.unshift(historyItem);
+
+            if (history.length > MAX_HISTORY_ITEMS) {
+                history = history.slice(0, MAX_HISTORY_ITEMS);
+            }
+
+            localStorage.setItem(getUserStorageKey(STORAGE_KEYS.HISTORY), JSON.stringify(history));
+        }
+
+        async function loadHistory() {
+            const historyList = document.getElementById('historyList');
+
+            if (isAuthenticated()) {
+                try {
+                    const response = await apiFetch('../backend/history.php?action=list&limit=50&offset=0', {
+                        method: 'GET'
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        if (!data.history || data.history.length === 0) {
+                            historyList.innerHTML = '<div class="history-empty">No history yet. Start by submitting a sentence!</div>';
+                            return;
+                        }
+                        renderHistoryList(data.history.map(item => ({
+                            id: item.id,
+                            sentence: item.input_sentence,
+                            mode: item.prediction_mode || 'best',
+                            timestamp: item.created_at
+                        })), 'server');
+                        return;
+                    }
+                } catch (error) {
+                    loadLocalHistory('Offline mode: showing local history.');
+                    return;
+                }
+            }
+
+            loadLocalHistory();
+        }
+
+        function loadLocalHistory(message = null) {
+            const history = JSON.parse(localStorage.getItem(getUserStorageKey(STORAGE_KEYS.HISTORY)) || '[]');
+            const historyList = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                const emptyMessage = message || 'No history yet. Start by submitting a sentence!';
+                historyList.innerHTML = `<div class="history-empty">${escapeHtml(emptyMessage)}</div>`;
+                return;
+            }
+
+            renderHistoryList(history, 'local');
+
+            if (message) {
+                historyList.innerHTML = `<div class="history-empty">${escapeHtml(message)}</div>` + historyList.innerHTML;
+            }
+        }
+
+        function renderHistoryList(history, source) {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = history.map(item => {
+                const date = new Date(item.timestamp);
+                const timeAgo = getTimeAgo(date);
+
+                return `
+                    <div class="history-item" onclick="loadHistoryItem('${source}', ${item.id})">
+                        <div class="history-item-text">${escapeHtml(item.sentence)}</div>
+                        <div class="history-item-meta">
+                            <span>${timeAgo}</span>
+                            <span class="history-item-badge">${item.mode}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadHistoryItem(source, id) {
+            if (source === 'server') {
+                try {
+                    const response = await apiFetch(`../backend/history.php?action=get&id=${id}`, {
+                        method: 'GET'
+                    });
+                    const data = await response.json();
+                    if (!data.success || !data.prediction) {
+                        alert('Unable to load history item.');
+                        return;
+                    }
+
+                    const prediction = data.prediction;
+                    document.getElementById('sentence').value = prediction.input_sentence || '';
+
+                    selectedMode = prediction.prediction_mode === 'top3' ? 'top3' : 'best';
+                    document.querySelectorAll('.mode-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.mode === selectedMode);
+                    });
+
+                    if (prediction.predictions_json) {
+                        displayResult(prediction.predictions_json, prediction.processing_time_ms || null, {
+                            processing_time_ms: prediction.processing_time_ms || null,
+                            history_id: prediction.id,
+                            model_name: prediction.predictions_json && prediction.predictions_json.system
+                                ? prediction.predictions_json.system.model_name
+                                : null
+                        });
+                    }
+
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (error) {
+                    alert('Unable to load history item.');
+                }
+                return;
+            }
+
+            const history = JSON.parse(localStorage.getItem(getUserStorageKey(STORAGE_KEYS.HISTORY)) || '[]');
+            const item = history.find(h => h.id === id);
+
+            if (item) {
+                document.getElementById('sentence').value = item.sentence;
+
+                selectedMode = item.mode === 'top3' ? 'top3' : 'best';
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === selectedMode);
+                });
+
+                displayResult(item.predictions);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        async function clearHistory() {
+            if (!confirm('Are you sure you want to clear all history?')) {
+                return;
+            }
+
+            if (isAuthenticated()) {
+                try {
+                    const response = await apiFetch('../backend/history.php?action=clear', {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+                    if (!data.success) {
+                        alert(data.error || 'Failed to clear history.');
+                        return;
+                    }
+                    localStorage.removeItem(getUserStorageKey(STORAGE_KEYS.HISTORY));
+                    await loadHistory();
+                } catch (error) {
+                    alert('Failed to clear history.');
+                }
+                return;
+            }
+
+            localStorage.removeItem(getUserStorageKey(STORAGE_KEYS.HISTORY));
+            await loadHistory();
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
+                }
+            }
+
+            return 'Just now';
+        }
+
+        // CACHE MANAGEMENT
+            
+        function getCacheKey(sentence, mode) {
+            // Create a hash-like key from sentence and mode
+            return `${sentence.toLowerCase().trim()}_${mode}`;
+        }
+
+        function saveToCache(sentence, mode, result) {
+            const storageKey = getUserStorageKey(STORAGE_KEYS.CACHE);
+            let cache = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            
+            const key = getCacheKey(sentence, mode);
+            cache[key] = {
+                result: result,
+                timestamp: Date.now()
+            };
+
+            // Limit cache size
+            const entries = Object.entries(cache);
+            if (entries.length > MAX_CACHE_ITEMS) {
+                // Remove oldest entries
+                entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+                cache = Object.fromEntries(entries.slice(-MAX_CACHE_ITEMS));
+            }
+
+            localStorage.setItem(storageKey, JSON.stringify(cache));
+            updateCacheStatus();
+        }
+
+        function getFromCache(sentence, mode) {
+            const storageKey = getUserStorageKey(STORAGE_KEYS.CACHE);
+            const cache = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            const key = getCacheKey(sentence, mode);
+            const cached = cache[key];
+
+            if (!cached) return null;
+
+            // Check if cache is expired
+            const age = Date.now() - cached.timestamp;
+            const maxAge = CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+
+            if (age > maxAge) {
+                // Remove expired cache
+                delete cache[key];
+                localStorage.setItem(storageKey, JSON.stringify(cache));
+                updateCacheStatus();
+                return null;
+            }
+
+            return cached.result;
+        }
+
+        function clearCache() {
+            if (confirm('Clear all cached predictions?')) {
+                localStorage.removeItem(getUserStorageKey(STORAGE_KEYS.CACHE));
+                updateCacheStatus();
+            }
+        }
+
+        function updateCacheStatus() {
+            const cache = JSON.parse(localStorage.getItem(getUserStorageKey(STORAGE_KEYS.CACHE)) || '{}');
+            const count = Object.keys(cache).length;
+            document.getElementById('cacheCount').textContent = count;
+        }
+
+        // MODE SELECTION
+
+               const modeBtns = document.querySelectorAll('.mode-btn');
+        let selectedMode = 'best';
+        const allowedModes = new Set(['best', 'top3']);
+
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const requestedMode = String(btn.dataset.mode || 'best').toLowerCase();
+                selectedMode = allowedModes.has(requestedMode) ? requestedMode : 'best';
+            });
+        });
+
+        // Batch mode selection
+        let selectedBatchMode = 'best';
+
+        function selectBatchMode(mode) {
+            selectedBatchMode = allowedModes.has(String(mode || '').toLowerCase()) ? String(mode).toLowerCase() : 'best';
+            console.log('Batch mode changed to:', selectedBatchMode);
+            
+            // Update button states
+            document.querySelectorAll('.batch-mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.querySelector(`.batch-mode-btn[data-mode="${selectedBatchMode}"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
+        // TAB SWITCHING
+          
+        function switchTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (tabName === 'single') {
+                document.getElementById('singleTab').classList.add('active');
+            } else if (tabName === 'batch') {
+                document.getElementById('batchTab').classList.add('active');
+            }
+            
+            console.log('Tab switched to:', tabName);
+        }
+
+        // Make sure function is available globally
+        window.switchTab = switchTab;
+
+   
+        // INSERT BLANK FUNCTIONS
+        
+        function insertBlank(type) {
+            const textarea = document.getElementById('sentence');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+
+            let blank = '_';
+            if (type === 'word') {
+                const hasSpaceBefore = start > 0 && /\s/.test(text[start - 1]);
+                const hasSpaceAfter = end < text.length && /\s/.test(text[end]);
+                blank = `${hasSpaceBefore ? '' : ' '}___${hasSpaceAfter ? '' : ' '}`;
+            }
+
+            const newText = text.substring(0, start) + blank + text.substring(end);
+            textarea.value = newText;
+
+            const newPos = start + blank.length;
+            textarea.setSelectionRange(newPos, newPos);
+            textarea.focus();
+        }
+
+
+                // authentication
+
+        function showLogin() {
+            openAuthModal('login');
+        }
+
+        function showSignup() {
+            openAuthModal('signup');
+        }
+
+        function openAuthModal(mode) {
+            const modal = document.getElementById('authModal');
+            modal.classList.add('active');
+            switchAuthMode(mode);
+            setAuthError('');
+        }
+
+        function closeAuth() {
+            document.getElementById('authModal').classList.remove('active');
+            setAuthError('');
+        }
+
+        function switchAuthMode(mode) {
+            const loginForm = document.getElementById('authLoginForm');
+            const signupForm = document.getElementById('authSignupForm');
+            const title = document.getElementById('authTitle');
+
+            if (mode === 'signup') {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                title.textContent = 'Create Account';
+            } else {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                title.textContent = 'Login';
+            }
+        }
+
+        function setAuthError(message) {
+            const error = document.getElementById('authError');
+            if (!message) {
+                error.style.display = 'none';
+                error.textContent = '';
+                return;
+            }
+            error.style.display = 'block';
+            error.textContent = message;
+        }
+
+        function setCurrentUser(user) {
+            currentUser = user;
+            if (user) {
+                localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.USER);
+            }
+            updateAuthUI();
+        }
+
+        function updateAuthUI() {
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const profileBtn = document.getElementById('profileBtn');
+            const userPill = document.getElementById('userPill');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+
+            if (currentUser && currentUser.username) {
+                loginBtn.style.display = 'none';
+                signupBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                profileBtn.style.display = 'inline-block';
+                userPill.style.display = 'inline-flex';
+                usernameDisplay.textContent = currentUser.username;
+            } else {
+                loginBtn.style.display = 'inline-block';
+                signupBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                profileBtn.style.display = 'none';
+                userPill.style.display = 'none';
+                usernameDisplay.textContent = '';
+            }
+        }
+
+        function isAuthenticated() {
+            return !!(currentUser && currentUser.username);
+        }
+
+        function validateSignupPassword(password) {
+            if (password.length < 6) {
+                return 'Password must be at least 6 characters.';
+            }
+            if (!/[0-9]/.test(password)) {
+                return 'Password must contain at least one number.';
+            }
+            if (/[`~,'<>"]/.test(password)) {
+                return 'Password cannot include any of these characters: ` ~ , \' < > "';
+            }
+            if (!/[^a-zA-Z0-9\s`~,'<>"]/.test(password)) {
+                return 'Password must contain at least one special character (excluding ` ~ , \' < > ").';
+            }
+            return '';
+        }
+
+        async function refreshCsrfToken() {
+            const response = await window.fetch('../backend/auth.php?action=csrf', {
+                method: 'GET',
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (!data.success || !data.csrf_token) {
+                throw new Error(data.error || 'Failed to get CSRF token');
+            }
+            csrfToken = data.csrf_token;
+            return csrfToken;
+        }
+
+        async function apiFetch(url, options = {}) {
+            const method = (options.method || 'GET').toUpperCase();
+            const needsCsrf = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+            const requestOptions = {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    ...(options.headers || {})
+                }
+            };
+
+            if (needsCsrf) {
+                if (!csrfToken) {
+                    await refreshCsrfToken();
+                }
+                requestOptions.headers['X-CSRF-Token'] = csrfToken;
+            }
+
+            let response = await window.fetch(url, requestOptions);
+
+            if (needsCsrf && response.status === 403) {
+                try {
+                    const errorData = await response.clone().json();
+                    if (errorData && errorData.code === 'CSRF_INVALID') {
+                        await refreshCsrfToken();
+                        requestOptions.headers['X-CSRF-Token'] = csrfToken;
+                        response = await window.fetch(url, requestOptions);
+                    }
+                } catch (e) {
+                    // Non-JSON response, return original 403 response.
+                }
+            }
+
+            return response;
+        }
+
+        function setFeedbackError(message) {
+            const errorBox = document.getElementById('feedbackError');
+            if (!errorBox) return;
+            if (!message) {
+                errorBox.style.display = 'none';
+                errorBox.textContent = '';
+                return;
+            }
+            errorBox.style.display = 'block';
+            errorBox.textContent = message;
+        }
+
+        function setFeedbackContext(data, serverResponse = null) {
+            const sentenceField = document.getElementById('sentence');
+            const fallbackInput = sentenceField ? sentenceField.value : '';
+            const inputSentence = String((data && data.input) || fallbackInput || '').trim();
+            const predictedSentence = String((data && data.reconstructed_sentence) || '').trim();
+            const historyValue = serverResponse && serverResponse.history_id !== undefined
+                ? Number(serverResponse.history_id)
+                : null;
+
+            currentFeedbackContext = {
+                history_id: Number.isFinite(historyValue) && historyValue > 0 ? historyValue : null,
+                input_sentence: inputSentence,
+                predicted_sentence: predictedSentence,
+                mode: (data && data.output_mode) ? String(data.output_mode) : selectedMode,
+                prediction_type: (data && data.type) ? String(data.type) : null
+            };
+        }
+
+        function getSelectedFeedbackCategories() {
+            return Array.from(document.querySelectorAll('input[name="feedbackCategory"]:checked'))
+                .map(input => input.value);
+        }
+
+        function openFeedbackModal() {
+            if (!currentFeedbackContext || !currentFeedbackContext.input_sentence) {
+                alert('No prediction context available yet.');
+                return;
+            }
+
+            const predicted = currentFeedbackContext.predicted_sentence || 'No reconstructed sentence was generated for this result.';
+            document.getElementById('feedbackPredictedPreview').innerHTML = `<strong>Current solved sentence:</strong><br>${escapeHtml(predicted)}`;
+            document.getElementById('feedbackCorrectedSentence').value = '';
+            document.getElementById('feedbackNotes').value = '';
+            document.querySelectorAll('input[name="feedbackCategory"]').forEach(input => {
+                input.checked = false;
+            });
+            setFeedbackError('');
+            document.getElementById('feedbackModal').classList.add('active');
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal').classList.remove('active');
+            setFeedbackError('');
+        }
+
+        async function submitFeedback() {
+            if (!currentFeedbackContext || !currentFeedbackContext.input_sentence) {
+                setFeedbackError('No prediction context available.');
+                return;
+            }
+
+            const categories = getSelectedFeedbackCategories();
+            if (categories.length === 0) {
+                setFeedbackError('Select at least one category.');
+                return;
+            }
+
+            const correctedSentence = document.getElementById('feedbackCorrectedSentence').value.trim();
+            const notes = document.getElementById('feedbackNotes').value.trim();
+
+            if (!correctedSentence && !notes) {
+                setFeedbackError('Provide a corrected sentence or additional notes.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('feedbackSubmitBtn');
+            submitBtn.disabled = true;
+            setFeedbackError('');
+
+            try {
+                const response = await apiFetch('../backend/feedback.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        history_id: currentFeedbackContext.history_id,
+                        input_sentence: currentFeedbackContext.input_sentence,
+                        predicted_sentence: currentFeedbackContext.predicted_sentence,
+                        corrected_sentence: correctedSentence,
+                        notes: notes,
+                        categories: categories
+                    })
+                });
+
+                const payload = await response.json();
+                if (!payload.success) {
+                    setFeedbackError(payload.error || 'Failed to submit feedback.');
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                closeFeedbackModal();
+                alert('Feedback submitted. Thank you.');
+            } catch (error) {
+                setFeedbackError('Network error while submitting feedback.');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function refreshAuth() {
+            try {
+                const response = await apiFetch('../backend/auth.php?action=check', {
+                    method: 'GET'
+                });
+                const data = await response.json();
+                if (data.success && data.authenticated) {
+                    setCurrentUser(data.user);
+                } else {
+                    setCurrentUser(null);
+                }
+            } catch (error) {
+                setCurrentUser(null);
+            }
+        }
+
+        async function submitLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                setAuthError('Username and password are required.');
+                return;
+            }
+
+            try {
+                const response = await apiFetch('../backend/auth.php?action=login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    setCurrentUser(data.user);
+                    closeAuth();
+                    await loadHistory();
+                    updateCacheStatus();
+                } else {
+                    setAuthError(data.error || 'Login failed.');
+                }
+            } catch (error) {
+                setAuthError('Network error: ' + error.message);
+            }
+        }
+
+        async function submitSignup() {
+            const username = document.getElementById('signupUsername').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const fullName = document.getElementById('signupFullName').value.trim();
+            const password = document.getElementById('signupPassword').value;
+
+            if (!username || !email || !password) {
+                setAuthError('Username, email, and password are required.');
+                return;
+            }
+            if (!email.includes('@')) {
+                setAuthError('Email must contain an @ sign.');
+                return;
+            }
+            const passwordValidationError = validateSignupPassword(password);
+            if (passwordValidationError) {
+                setAuthError(passwordValidationError);
+                return;
+            }
+
+            try {
+                const response = await apiFetch('../backend/auth.php?action=register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password,
+                        full_name: fullName
+                    })
+                });
+                const data = await response.json();
+                if (!data.success) {
+                    setAuthError(data.error || 'Registration failed.');
+                    return;
+                }
+
+                await submitLogin();
+            } catch (error) {
+                setAuthError('Network error: ' + error.message);
+            }
+        }
+
+        async function logout() {
+            try {
+                await apiFetch('../backend/auth.php?action=logout', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                // Ignore logout errors
+            }
+            closeProfilePage();
+            setCurrentUser(null);
+            await loadHistory();
+            updateCacheStatus();
+        }
+
+        function setPageView(page) {
+            const mainPage = document.getElementById('mainPage');
+            const profilePage = document.getElementById('profilePage');
+            const showProfile = page === 'profile';
+
+            if (mainPage) {
+                mainPage.style.display = showProfile ? 'none' : '';
+            }
+            if (profilePage) {
+                profilePage.classList.toggle('active', showProfile);
+                profilePage.setAttribute('aria-hidden', showProfile ? 'false' : 'true');
+            }
+        }
+
+        function getRoutePage() {
+            return window.location.hash.toLowerCase() === '#profile' ? 'profile' : 'main';
+        }
+
+        async function handleRouteChange() {
+            const routePage = getRoutePage();
+            if (routePage === 'profile') {
+                if (!isAuthenticated()) {
+                    if (window.location.hash) {
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                    }
+                    setPageView('main');
+                    showLogin();
+                    return;
+                }
+                setPageView('profile');
+                await loadProfilePageData();
+                return;
+            }
+            setPageView('main');
+        }
+
+        function goHome() {
+            closeAuth();
+            if (window.location.hash.toLowerCase() === '#profile') {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+            setPageView('main');
+            switchTab('single');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeProfilePage() {
+            if (window.location.hash.toLowerCase() === '#profile') {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+            setPageView('main');
+        }
+
+        async function openProfilePage() {
+            if (!isAuthenticated()) {
+                showLogin();
+                return;
+            }
+            if (window.location.hash.toLowerCase() !== '#profile') {
+                window.location.hash = 'profile';
+                return;
+            }
+            await handleRouteChange();
+        }
+
+        async function loadProfilePageData() {
+            await Promise.all([
+                loadProfileSummary(),
+                loadProfileHistory(),
+                loadProfileCache(),
+                loadProfileMetrics()
+            ]);
+        }
+
+        async function loadProfileSummary() {
+            const summary = document.getElementById('profileSummary');
+            summary.innerHTML = '<div class="profile-list-empty">Loading profile...</div>';
+            try {
+                const response = await apiFetch('../backend/auth.php?action=profile', { method: 'GET' });
+                const data = await response.json();
+                if (!data.success || !data.profile) {
+                    summary.innerHTML = '<div class="profile-list-empty">Unable to load profile details.</div>';
+                    return;
+                }
+                const profile = data.profile;
+                const cards = [
+                    ['Username', profile.username || '-'],
+                    ['Email', profile.email || '-'],
+                    ['Full Name', profile.full_name || '-'],
+                    ['Role', profile.is_admin ? 'Admin' : 'User'],
+                    ['Total Solved Sentences', profile.total_predictions ?? 0],
+                    ['Average Processing', profile.avg_processing_time_ms ? `${Number(profile.avg_processing_time_ms).toFixed(1)} ms` : 'n/a']
+                ];
+                summary.innerHTML = cards.map(([label, value]) => `
+                    <div class="profile-card">
+                        <h4>${escapeHtml(label)}</h4>
+                        <p>${escapeHtml(String(value))}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                summary.innerHTML = '<div class="profile-list-empty">Unable to load profile details.</div>';
+            }
+        }
+
+        async function loadProfileHistory() {
+            const solvedList = document.getElementById('profileSolvedList');
+            solvedList.innerHTML = '<div class="profile-list-empty">Loading solved sentences...</div>';
+            try {
+                const response = await apiFetch('../backend/history.php?action=list&limit=50&offset=0', { method: 'GET' });
+                const data = await response.json();
+                if (!data.success || !Array.isArray(data.history) || data.history.length === 0) {
+                    solvedList.innerHTML = '<div class="profile-list-empty">No solved sentences yet.</div>';
+                    return;
+                }
+                solvedList.innerHTML = data.history.map((item) => `
+                    <div class="profile-list-item" onclick="loadHistoryItem('server', ${item.id}); closeProfilePage();">
+                        <div><strong>${escapeHtml(item.input_sentence || '')}</strong></div>
+                        <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">
+                            ${escapeHtml(getTimeAgo(new Date(item.created_at)))} | ${escapeHtml(item.prediction_mode || 'best')}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                solvedList.innerHTML = '<div class="profile-list-empty">Unable to load solved sentences.</div>';
+            }
+        }
+
+        async function loadProfileCache() {
+            const cacheList = document.getElementById('profileCacheList');
+            const cache = JSON.parse(localStorage.getItem(getUserStorageKey(STORAGE_KEYS.CACHE)) || '{}');
+            const entries = Object.entries(cache).sort((a, b) => (b[1].timestamp || 0) - (a[1].timestamp || 0));
+
+            if (!entries.length) {
+                cacheList.innerHTML = '<div class="profile-list-empty">No cached sentences in this browser.</div>';
+                return;
+            }
+
+            cacheList.innerHTML = entries.slice(0, 50).map(([key, item]) => {
+                const sentence = key.replace(/_(best|top3)$/i, '');
+                const timestamp = item.timestamp ? getTimeAgo(new Date(item.timestamp)) : 'Unknown';
+                return `
+                    <div class="profile-list-item">
+                        <div><strong>${escapeHtml(sentence)}</strong></div>
+                        <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">${escapeHtml(timestamp)}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadProfileMetrics() {
+            const metricsEl = document.getElementById('profileMetrics');
+            metricsEl.innerHTML = '<div class="profile-list-empty">Loading metrics...</div>';
+            try {
+                const response = await apiFetch('../backend/history.php?action=metrics', { method: 'GET' });
+                const data = await response.json();
+                if (!data.success) {
+                    metricsEl.innerHTML = '<div class="profile-list-empty">Unable to load metrics.</div>';
+                    return;
+                }
+
+                const overall = data.overall || {};
+                const rows = Array.isArray(data.per_model) ? data.per_model : [];
+                const header = `
+                    <div style="margin-bottom: 10px; color: var(--text-tertiary);">
+                        Samples: <strong>${overall.sample_size ?? 0}</strong> |
+                        Avg: <strong>${overall.avg_processing_time_ms ?? 0} ms</strong> |
+                        Min: <strong>${overall.min_processing_time_ms ?? 'n/a'} ms</strong> |
+                        Max: <strong>${overall.max_processing_time_ms ?? 'n/a'} ms</strong>
+                    </div>
+                `;
+
+                if (!rows.length) {
+                    metricsEl.innerHTML = `${header}<div class="profile-list-empty">No performance samples available yet.</div>`;
+                    return;
+                }
+
+                const tableRows = rows.map((row) => `
+                    <tr>
+                        <td>${escapeHtml(row.model_name || 'Unknown')}</td>
+                        <td>${escapeHtml(String(row.sample_size ?? 0))}</td>
+                        <td>${escapeHtml(String(row.avg_processing_time_ms ?? 0))} ms</td>
+                        <td>${escapeHtml(String(row.min_processing_time_ms ?? 'n/a'))} ms</td>
+                        <td>${escapeHtml(String(row.max_processing_time_ms ?? 'n/a'))} ms</td>
+                    </tr>
+                `).join('');
+
+                metricsEl.innerHTML = `
+                    ${header}
+                    <table class="profile-metrics-table">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Samples</th>
+                                <th>Average</th>
+                                <th>Min</th>
+                                <th>Max</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                `;
+            } catch (error) {
+                metricsEl.innerHTML = '<div class="profile-list-empty">Unable to load metrics.</div>';
+            }
+        }
+
+        async function deleteCurrentProfile() {
+            if (!isAuthenticated()) {
+                return;
+            }
+            const confirmed = confirm('Delete your profile permanently? This will remove your account and history.');
+            if (!confirmed) {
+                return;
+            }
+            const password = prompt('Please enter your password to confirm profile deletion:');
+            if (!password) {
+                return;
+            }
+            try {
+                const response = await apiFetch('../backend/auth.php?action=delete_profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
+                const data = await response.json();
+                if (!data.success) {
+                    alert(data.error || 'Failed to delete profile.');
+                    return;
+                }
+                localStorage.removeItem(getUserStorageKey(STORAGE_KEYS.HISTORY));
+                localStorage.removeItem(getUserStorageKey(STORAGE_KEYS.CACHE));
+                closeProfilePage();
+                setCurrentUser(null);
+                await loadHistory();
+                updateCacheStatus();
+                alert('Profile deleted successfully.');
+            } catch (error) {
+                alert('Failed to delete profile.');
+            }
+        }
+
+        // submission handler
+        let loadingPhaseTimers = [];
+
+        function setLoadingPhaseText(message) {
+            const phaseText = document.getElementById('loadingPhaseText');
+            if (phaseText) {
+                phaseText.textContent = message;
+            }
+        }
+
+        function startLoadingPhases() {
+            stopLoadingPhases();
+            setLoadingPhaseText('Analyzing letters...');
+            loadingPhaseTimers.push(setTimeout(() => setLoadingPhaseText('Predicting missing words...'), 900));
+            loadingPhaseTimers.push(setTimeout(() => setLoadingPhaseText('Finalizing response...'), 2200));
+        }
+
+        function stopLoadingPhases() {
+            loadingPhaseTimers.forEach(timerId => clearTimeout(timerId));
+            loadingPhaseTimers = [];
+            setLoadingPhaseText('Processing your sentence. Please wait.');
+        }
+        
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const sentence = document.getElementById('sentence').value.trim();
+            
+            if (!sentence) {
+                alert('Please enter a sentence!');
+                return;
+            }
+
+            // Check cache first
+            const cached = getFromCache(sentence, selectedMode);
+            if (cached) {
+                console.log('Loaded from cache');
+                await saveToHistory(sentence, cached, selectedMode);
+                displayResult(cached, null, null);
+                displayCacheNotice();
+                await loadHistory();
+                return;
+            }
+
+            // Show loading, hide result
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('result').classList.remove('active');
+            document.getElementById('submitBtn').disabled = true;
+            startLoadingPhases();
+
+            const startTime = Date.now();
+
+            try {
+                const response = await apiFetch('../backend/process_socket_w_history.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sentence: sentence,
+                        mode: selectedMode
+                    })
+                });
+
+                const result = await response.json();
+                const processingTime = Date.now() - startTime;
+
+                // Hide loading
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('submitBtn').disabled = false;
+                stopLoadingPhases();
+
+                if (result.success) {
+                    // Save to cache
+                    saveToCache(sentence, selectedMode, result.data);
+                    
+                    // Save to history
+                    await saveToHistory(sentence, result.data, selectedMode);
+                    
+                    // Display result
+                    displayResult(result.data, processingTime, result);
+
+                    await loadHistory();
+                } else {
+                    displayError(result.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('submitBtn').disabled = false;
+                stopLoadingPhases();
+                displayError('Network error: ' + error.message);
+            }
+        });
+
+        function displayCacheNotice() {
+            const resultDiv = document.getElementById('result');
+            const notice = document.createElement('div');
+            notice.style.cssText = 'background: var(--accent-color); color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: center;';
+            notice.innerHTML = 'Loaded from cache (instant result)';
+            
+            const resultBody = resultDiv.querySelector('.result-body');
+            if (resultBody) {
+                resultBody.insertBefore(notice, resultBody.firstChild);
+            }
+        }
+
+        // batch processing
+        
+        let batchSentences = [];
+        let batchResults = [];
+        let batchRunMetrics = null;
+        const MAX_BATCH_FILE_BYTES = 2 * 1024 * 1024; // 2 MB
+
+        function formatFileSize(bytes) {
+            if (!Number.isFinite(bytes) || bytes <= 0) return '0 B';
+            if (bytes < 1024) return `${bytes} B`;
+            if (bytes < (1024 * 1024)) return `${(bytes / 1024).toFixed(1)} KB`;
+            return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+        }
+
+        // Drag and drop function enabled
+        const batchUpload = document.getElementById('batchUpload');
+        
+        batchUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            batchUpload.classList.add('drag-over');
+        });
+
+        batchUpload.addEventListener('dragleave', () => {
+            batchUpload.classList.remove('drag-over');
+        });
+
+        batchUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            batchUpload.classList.remove('drag-over');
+            
+            const file = e.dataTransfer.files[0];
+            const extension = file ? file.name.split('.').pop().toLowerCase() : '';
+            if (file && ['txt', 'csv', 'json'].includes(extension)) {
+                loadBatchFile(file);
+            } else {
+                alert('Please drop a TXT, CSV, or JSON file');
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                loadBatchFile(file);
+            }
+        }
+
+        function loadBatchFile(file) {
+            const fileName = file.name;
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+
+            if (file.size > MAX_BATCH_FILE_BYTES) {
+                alert(`File is too large (${formatFileSize(file.size)}). Maximum allowed size is 2 MB.`);
+                return;
+            }
+
+            if (fileExtension === 'txt' || fileExtension === 'csv') {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    processBatchContent(content, fileName);
+                };
+
+                reader.readAsText(file);
+            } else if (fileExtension === 'json') {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    try {
+                        const parsed = JSON.parse(e.target.result);
+                        let sentences = [];
+
+                        if (Array.isArray(parsed)) {
+                            sentences = parsed.map(item => {
+                                if (typeof item === 'string') return item;
+                                if (item && typeof item.sentence === 'string') return item.sentence;
+                                if (item && typeof item.text === 'string') return item.text;
+                                return '';
+                            });
+                        } else if (parsed && Array.isArray(parsed.sentences)) {
+                            sentences = parsed.sentences.map(item => String(item));
+                        }
+
+                        processBatchSentences(sentences, fileName);
+                    } catch (error) {
+                        alert('Invalid JSON file format. Use an array of sentences or {"sentences": [...]}');
+                    }
+                };
+
+                reader.readAsText(file);
+            } else {
+                alert('Unsupported file type. Please choose TXT, CSV, or JSON.');
+            }
+        }
+
+        function processBatchContent(content, fileName) {
+            const sentences = content.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            processBatchSentences(sentences, fileName);
+        }
+
+        function processBatchSentences(sentences, fileName) {
+            batchSentences = sentences
+                .map(line => String(line).trim())
+                .filter(line => line.length > 0);
+            
+            if (batchSentences.length === 0) {
+                alert('No sentences found in file');
+                return;
+            }
+
+            // Count total blanks
+            let totalBlanks = 0;
+            batchSentences.forEach(sentence => {
+                totalBlanks += (sentence.match(/___/g) || []).length;
+                totalBlanks += (sentence.match(/[a-zA-Z]_+[a-zA-Z]/g) || []).length;
+            });
+
+            // Show batch info
+            document.getElementById('fileName').textContent = fileName;
+            document.getElementById('sentenceCount').textContent = batchSentences.length;
+            document.getElementById('blankCount').textContent = totalBlanks;
+            
+            document.getElementById('batchInfo').classList.add('active');
+            batchUpload.style.display = 'none';
+        }
+
+        function cancelBatch() {
+            batchSentences = [];
+            batchResults = [];
+            batchRunMetrics = null;
+            document.getElementById('batchInfo').classList.remove('active');
+            document.getElementById('batchProgress').classList.remove('active');
+            document.getElementById('batchResults').innerHTML = '';
+            batchUpload.style.display = 'block';
+            document.getElementById('fileInput').value = '';
+        }
+
+        function calculateBatchPerformance(results, startedAt, finishedAt) {
+            const successful = results.filter(item => !(item && item.data && item.data.error));
+            const failed = results.length - successful.length;
+
+            const backendTimes = successful
+                .map(item => Number(item?.metrics?.backend_processing_time_ms))
+                .filter(value => Number.isFinite(value) && value >= 0);
+
+            const totalTimes = successful
+                .map(item => Number(item?.metrics?.total_processing_time_ms))
+                .filter(value => Number.isFinite(value) && value >= 0);
+
+            const sum = (arr) => arr.reduce((acc, value) => acc + value, 0);
+            const average = (arr) => arr.length ? (sum(arr) / arr.length) : null;
+            const min = (arr) => arr.length ? Math.min(...arr) : null;
+            const max = (arr) => arr.length ? Math.max(...arr) : null;
+
+            const modelCounts = {};
+            successful.forEach(item => {
+                const model = String(item?.metrics?.model_name || item?.data?.system?.model_name || 'unknown');
+                modelCounts[model] = (modelCounts[model] || 0) + 1;
+            });
+
+            const browserCacheHits = successful.filter(item => item?.metrics?.source === 'browser-cache').length;
+            const serverCacheHits = successful.filter(item => item?.metrics?.cache?.server_hit === true).length;
+
+            return {
+                mode: selectedBatchMode,
+                model_distribution: modelCounts,
+                total_sentences: results.length,
+                successful_sentences: successful.length,
+                failed_sentences: failed,
+                wall_time_ms: Math.max(0, Math.round((finishedAt || startedAt) - startedAt)),
+                backend_processing: {
+                    samples: backendTimes.length,
+                    avg_ms: backendTimes.length ? Math.round(average(backendTimes)) : null,
+                    min_ms: min(backendTimes),
+                    max_ms: max(backendTimes),
+                    sum_ms: backendTimes.length ? Math.round(sum(backendTimes)) : null
+                },
+                total_processing: {
+                    samples: totalTimes.length,
+                    avg_ms: totalTimes.length ? Math.round(average(totalTimes)) : null,
+                    min_ms: min(totalTimes),
+                    max_ms: max(totalTimes),
+                    sum_ms: totalTimes.length ? Math.round(sum(totalTimes)) : null
+                },
+                cache: {
+                    browser_hits: browserCacheHits,
+                    server_hits: serverCacheHits
+                }
+            };
+        }
+
+        async function processBatch() {
+            if (batchSentences.length === 0) return;
+
+            batchResults = [];
+            batchRunMetrics = null;
+            const batchStartedAt = performance.now();
+            
+            // Show progress
+            document.getElementById('batchInfo').classList.remove('active');
+            document.getElementById('batchProgress').classList.add('active');
+            document.getElementById('totalSentences').textContent = batchSentences.length;
+
+            console.log('Processing batch with mode:', selectedBatchMode);
+
+            // Process each sentence
+            for (let i = 0; i < batchSentences.length; i++) {
+                const sentence = batchSentences[i];
+                const requestStartedAt = performance.now();
+                
+                // Update progress
+                const progress = ((i + 1) / batchSentences.length * 100).toFixed(0);
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressFill').textContent = progress + '%';
+                document.getElementById('currentSentence').textContent = i + 1;
+
+                try {
+                    // Check cache first (use batch mode)
+                    let result = getFromCache(sentence, selectedBatchMode);
+                    let responseMeta = null;
+                    let source = 'server';
+                    
+                    if (!result) {
+                        console.log(`Sentence ${i+1}: Making API call with mode ${selectedBatchMode}`);
+                        // Make API call with the batch mode
+                        const response = await apiFetch('../backend/process_socket_w_history.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                sentence: sentence,
+                                mode: selectedBatchMode  // Use batch mode, not single mode
+                            })
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            result = data.data;
+                            responseMeta = data;
+                            // Cache it with batch mode
+                            saveToCache(sentence, selectedBatchMode, result);
+                        } else {
+                            result = { error: data.error };
+                        }
+                    } else {
+                        console.log(`Sentence ${i+1}: Loaded from cache`);
+                        source = 'browser-cache';
+                    }
+
+                    if (!result.error) {
+                        await saveToHistory(sentence, result, selectedBatchMode);
+                    }
+
+                    const totalProcessingMs = Math.max(0, Math.round(performance.now() - requestStartedAt));
+                    const backendProcessingMs = responseMeta && Number.isFinite(Number(responseMeta.processing_time_ms))
+                        ? Number(responseMeta.processing_time_ms)
+                        : (source === 'browser-cache' ? 0 : null);
+                    const modelName = (responseMeta && responseMeta.model_name)
+                        ? String(responseMeta.model_name)
+                        : (result && result.system && result.system.model_name)
+                            ? String(result.system.model_name)
+                            : 'Unknown model';
+
+                    const serverCacheHit = Boolean(responseMeta && responseMeta.cache && responseMeta.cache.hit === true);
+
+                    batchResults.push({
+                        input: sentence,
+                        output: result.reconstructed_sentence || '(See predictions below)',
+                        data: result,
+                        mode: selectedBatchMode,
+                        metrics: {
+                            mode: selectedBatchMode,
+                            model_name: modelName,
+                            backend_processing_time_ms: backendProcessingMs,
+                            total_processing_time_ms: totalProcessingMs,
+                            source: source,
+                            cache: {
+                                server_hit: serverCacheHit
+                            }
+                        }
+                    });
+
+                } catch (error) {
+                    batchResults.push({
+                        input: sentence,
+                        output: 'Error: ' + error.message,
+                        data: { error: error.message },
+                        mode: selectedBatchMode,
+                        metrics: {
+                            mode: selectedBatchMode,
+                            model_name: 'Unknown model',
+                            backend_processing_time_ms: null,
+                            total_processing_time_ms: Math.max(0, Math.round(performance.now() - requestStartedAt)),
+                            source: 'error',
+                            cache: {
+                                server_hit: false
+                            }
+                        }
+                    });
+                }
+            }
+
+            batchRunMetrics = calculateBatchPerformance(batchResults, batchStartedAt, performance.now());
+
+            await loadHistory();
+
+            // Hide progress, show results
+            document.getElementById('batchProgress').classList.remove('active');
+            displayBatchResults();
+        }
+
+        function displayBatchResults() {
+            const resultsDiv = document.getElementById('batchResults');
+            
+            console.log('Displaying batch results. Mode:', selectedBatchMode);
+            console.log('Results:', batchResults);
+            
+            let html = '<div style="background: var(--container-bg); padding: 25px; border-radius: 15px; margin-top: 20px;">';
+            html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">';
+            html += `<h2 style="color: var(--text-primary);"> Batch Results (${selectedBatchMode} mode)</h2>`;
+            html += '<div style="display: flex; gap: 10px;">';
+            html += '<button class="download-batch-btn" onclick="downloadBatchJSON()"> Download JSON</button>';
+            html += '<button class="cancel-batch-btn" onclick="cancelBatch()"> New Batch</button>';
+            html += '</div></div>';
+
+            if (batchRunMetrics) {
+                const backendAvg = Number.isFinite(Number(batchRunMetrics.backend_processing.avg_ms))
+                    ? `${Number(batchRunMetrics.backend_processing.avg_ms)} ms`
+                    : 'n/a';
+                const totalAvg = Number.isFinite(Number(batchRunMetrics.total_processing.avg_ms))
+                    ? `${Number(batchRunMetrics.total_processing.avg_ms)} ms`
+                    : 'n/a';
+                html += `
+                    <div style="margin-bottom: 16px; padding: 12px; background: var(--input-bg); border-radius: 8px; color: var(--text-primary);">
+                        <strong>Performance Summary:</strong><br>
+                        Sentences: ${batchRunMetrics.total_sentences} |
+                        Success: ${batchRunMetrics.successful_sentences} |
+                        Failed: ${batchRunMetrics.failed_sentences} |
+                        Total Time: ${batchRunMetrics.wall_time_ms} ms<br>
+                        Avg Backend: ${backendAvg} |
+                        Avg Total: ${totalAvg} |
+                        Browser Cache Hits: ${batchRunMetrics.cache.browser_hits} |
+                        Server Cache Hits: ${batchRunMetrics.cache.server_hits}
+                    </div>
+                `;
+            }
+
+            html += '<div class="batch-results">';
+            
+            batchResults.forEach((result, index) => {
+                html += `<div class="batch-result-item">`;
+                html += `<div class="batch-result-input"><strong>Input ${index + 1}:</strong> ${escapeHtml(result.input)}</div>`;
+                if (result.metrics) {
+                    const backendLabel = Number.isFinite(Number(result.metrics.backend_processing_time_ms))
+                        ? `${Number(result.metrics.backend_processing_time_ms)} ms`
+                        : 'n/a';
+                    const totalLabel = Number.isFinite(Number(result.metrics.total_processing_time_ms))
+                        ? `${Number(result.metrics.total_processing_time_ms)} ms`
+                        : 'n/a';
+                    html += `
+                        <div style="margin-top: 6px; color: var(--text-secondary); font-size: 0.92rem;">
+                            Model: ${escapeHtml(String(result.metrics.model_name || 'Unknown model'))} |
+                            Mode: ${escapeHtml(String(result.metrics.mode || selectedBatchMode))} |
+                            Backend: ${escapeHtml(backendLabel)} |
+                            Total: ${escapeHtml(totalLabel)} |
+                            Source: ${escapeHtml(String(result.metrics.source || 'server'))}
+                        </div>
+                    `;
+                }
+                
+                // Only show "Best Output" if reconstruction exists (best mode only)
+                if (result.output && result.output !== '(See predictions below)') {
+                    html += `<div class="batch-result-output"><strong>Best Reconstruction:</strong> ${escapeHtml(result.output)}</div>`;
+                }
+                
+                // Always show full prediction list for top3 mode
+                if (selectedBatchMode === 'top3') {
+                    html += `<div style="margin-top: 10px; padding: 10px; background: var(--input-bg); border-radius: 8px;">`;
+                    html += `<strong style="color: var(--accent-color);">All Predictions (Top 3):</strong><br><br>`;
+                    
+                    const data = result.data;
+                    
+                    // Handle different data structures
+                    if (data.type === 'missing_words' && data.predictions) {
+                        if (Array.isArray(data.predictions)) {
+                            if (data.predictions[0] && data.predictions[0].position) {
+                                // Multiple blanks
+                                data.predictions.forEach(blank => {
+                                    html += `<div style="margin: 8px 0; padding: 8px; background: var(--container-bg); border-radius: 5px;">`;
+                                    html += `<strong>Blank ${blank.position}:</strong><br>`;
+                                    blank.predictions.forEach((p, idx) => {
+                                        html += `&nbsp;&nbsp;${idx + 1}. ${p.word} <em>(${p.confidence}% model confidence)</em><br>`;
+                                    });
+                                    html += `</div>`;
+                                });
+                            } else {
+                                // Single blank
+                                data.predictions.forEach((p, idx) => {
+                                    html += `${idx + 1}. ${p.word} <em>(${p.confidence}% model confidence)</em><br>`;
+                                });
+                            }
+                        }
+                    } else if (data.type === 'missing_letters' && data.predictions) {
+                        data.predictions.forEach(item => {
+                            html += `<div style="margin: 8px 0; padding: 8px; background: var(--container-bg); border-radius: 5px;">`;
+                            html += `<strong>Pattern "${item.pattern}":</strong><br>`;
+                            item.predictions.forEach((p, idx) => {
+                                html += `&nbsp;&nbsp;${idx + 1}. ${p.word} <em>(${p.confidence}% model confidence)</em><br>`;
+                            });
+                            html += `</div>`;
+                        });
+                    } else if (data.type === 'mixed') {
+                        // Handle mixed type
+                        if (data.missing_words && data.missing_words.length > 0) {
+                            html += `<div style="margin-bottom: 15px;"><strong style="color: var(--header-color);">Missing Words:</strong></div>`;
+                            if (data.missing_words[0].position) {
+                                data.missing_words.forEach(blank => {
+                                    html += `<div style="margin: 8px 0; padding: 8px; background: var(--container-bg); border-radius: 5px;">`;
+                                    html += `<strong>Blank ${blank.position}:</strong><br>`;
+                                    blank.predictions.forEach((p, idx) => {
+                                        html += `&nbsp;&nbsp;${idx + 1}. ${p.word} <em>(${p.confidence}% model confidence)</em><br>`;
+                                    });
+                                    html += `</div>`;
+                                });
+                            } else {
+                                data.missing_words.forEach((p, idx) => {
+                                    html += `${idx + 1}. ${p.word} <em>(${p.confidence}% model confidence)</em><br>`;
+                                });
+                            }
+                        }
+                        if (data.missing_letters && data.missing_letters.length > 0) {
+                            html += `<div style="margin-top: 15px; margin-bottom: 10px;"><strong style="color: var(--header-color);">Missing Letters:</strong></div>`;
+                            data.missing_letters.forEach(item => {
+                                html += `<div style="margin: 8px 0; padding: 8px; background: var(--container-bg); border-radius: 5px;">`;
+                                html += `<strong>Pattern "${item.pattern}":</strong><br>`;
+                                item.predictions.forEach((p, idx) => {
+                                    html += `&nbsp;&nbsp;${idx + 1}. ${p.word} <em>(${p.confidence}% model confidence)</em><br>`;
+                                });
+                                html += `</div>`;
+                            });
+                        }
+                    }
+                    
+                    html += `</div>`;
+                } else if (selectedBatchMode === 'best' && !result.output) {
+                    // If best mode but no output, still show the single best prediction
+                    html += `<div style="margin-top: 10px; padding: 10px; background: var(--input-bg); border-radius: 8px;">`;
+                    html += `<strong style="color: var(--accent-color);">Best Prediction:</strong><br><br>`;
+                    
+                    const data = result.data;
+                    if (data.predictions) {
+                        if (Array.isArray(data.predictions)) {
+                            if (data.predictions[0] && data.predictions[0].position) {
+                                data.predictions.forEach(blank => {
+                                    if (blank.predictions && blank.predictions[0]) {
+                                        html += `Blank ${blank.position}: <strong>${blank.predictions[0].word}</strong> (${blank.predictions[0].confidence}%)<br>`;
+                                    }
+                                });
+                            } else if (data.predictions[0]) {
+                                html += `<strong>${data.predictions[0].word}</strong> (${data.predictions[0].confidence}%)`;
+                            }
+                        }
+                    }
+                    html += `</div>`;
+                }
+                
+                html += `</div>`;
+            });
+
+            html += '</div></div>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function downloadBatchJSON() {
+            const payload = {
+                generated_at: new Date().toISOString(),
+                mode: selectedBatchMode,
+                count: batchResults.length,
+                performance: batchRunMetrics,
+                results: batchResults
+            };
+            downloadFile(JSON.stringify(payload, null, 2), 'batch_results.json', 'application/json');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // display functions showing user content
+        
+        function formatModeLabel(mode) {
+            const normalized = (mode || selectedMode || 'best').toLowerCase();
+            if (normalized === 'top3') return 'Top 3';
+            return 'Best';
+        }
+
+        function formatTypeLabel(type) {
+            if (!type) return 'Unknown';
+            if (String(type).toLowerCase() === 'mixed') {
+                return 'Mixed (Missing Words + Missing Letters)';
+            }
+            return type.replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase());
+        }
+
+        function normalizeTokenForCompare(token) {
+            return String(token || '')
+                .replace(/^[^\w']+|[^\w']+$/g, '')
+                .toLowerCase();
+        }
+
+        function splitPrimaryAndAlternatives(predictions, outputMode) {
+            const list = Array.isArray(predictions)
+                ? predictions.filter((p) => p && typeof p.word === 'string')
+                : [];
+
+            if (list.length === 0) {
+                return { primary: [], alternatives: [] };
+            }
+
+            const isBest = String(outputMode || selectedMode || 'best').toLowerCase() === 'best';
+            if (!isBest) {
+                return { primary: list, alternatives: [] };
+            }
+
+            const first = list[0];
+            const alternatives = Array.isArray(first.alternatives)
+                ? first.alternatives
+                : list.slice(1);
+
+            return {
+                primary: [first],
+                alternatives: alternatives.filter((p) => p && typeof p.word === 'string')
+            };
+        }
+
+        function formatPredictionList(predictions) {
+            if (!Array.isArray(predictions) || predictions.length === 0) {
+                return 'none';
+            }
+
+            return predictions
+                .filter((item) => item && typeof item.word === 'string')
+                .map((item) => {
+                    const conf = Number.isFinite(Number(item.confidence)) ? Number(item.confidence).toFixed(1) : '0.0';
+                    return `${item.word} (${conf}%)`;
+                })
+                .join(', ');
+        }
+
+        function renderHighlightedReconstruction(inputSentence, reconstructedSentence) {
+            const inputTokens = String(inputSentence || '').split(/\s+/).filter(Boolean);
+            const outputTokens = String(reconstructedSentence || '').split(/\s+/).filter(Boolean);
+            if (outputTokens.length === 0) {
+                return '';
+            }
+
+            return outputTokens.map((outToken, index) => {
+                const inToken = inputTokens[index] || '';
+                const fromPlaceholder = inToken.includes('_');
+                const changedByDiff = normalizeTokenForCompare(inToken) !== normalizeTokenForCompare(outToken);
+                const shouldHighlight = fromPlaceholder || changedByDiff;
+                return shouldHighlight
+                    ? `<span class="reconstructed-change">${escapeHtml(outToken)}</span>`
+                    : escapeHtml(outToken);
+            }).join(' ');
+        }
+
+        function collectExplainItems(data) {
+            const items = [];
+
+            const addWordItems = (predictions) => {
+                if (!Array.isArray(predictions) || predictions.length === 0) return;
+
+                if (predictions[0] && predictions[0].position) {
+                    predictions.forEach((blank, index) => {
+                        const first = blank.predictions && blank.predictions[0];
+                        if (!first || !first.word) return;
+                        items.push({
+                            kind: 'Missing word',
+                            span: `Blank ${blank.position || (index + 1)} (___)`,
+                            selected: first,
+                            alternatives: Array.isArray(first.alternatives) ? first.alternatives : []
+                        });
+                    });
+                    return;
+                }
+
+                const first = predictions[0];
+                if (!first || !first.word) return;
+                items.push({
+                    kind: 'Missing word',
+                    span: 'Blank 1 (___)',
+                    selected: first,
+                    alternatives: Array.isArray(first.alternatives) ? first.alternatives : []
+                });
+            };
+
+            const addLetterItems = (predictions) => {
+                if (!Array.isArray(predictions) || predictions.length === 0) return;
+
+                predictions.forEach((item) => {
+                    const first = item && item.predictions && item.predictions[0];
+                    if (!first || !first.word) return;
+                    items.push({
+                        kind: 'Missing letters',
+                        span: item.pattern || '(unknown)',
+                        selected: first,
+                        alternatives: Array.isArray(first.alternatives) ? first.alternatives : []
+                    });
+                });
+            };
+
+            if (data.type === 'mixed') {
+                addWordItems(data.missing_words);
+                addLetterItems(data.missing_letters);
+            } else if (data.type === 'missing_words') {
+                addWordItems(data.predictions);
+            } else if (data.type === 'missing_letters') {
+                addLetterItems(data.predictions);
+            }
+
+            return items;
+        }
+
+        function renderExplainSection(data) {
+            const explainItems = collectExplainItems(data);
+            if (explainItems.length === 0) {
+                return '';
+            }
+
+            const mixedNote = data.type === 'mixed'
+                ? '<p class="explain-note">Mixed mode means the input contains both missing words (`___`) and missing letters (`_`). The system first resolves letter gaps, then predicts missing words with the updated context.</p>'
+                : '';
+
+            const rows = explainItems.map((item, index) => {
+                const selectedConfidence = Number.isFinite(Number(item.selected.confidence))
+                    ? Number(item.selected.confidence).toFixed(1)
+                    : '0.0';
+                const alternativesText = formatPredictionList(item.alternatives);
+                return `
+                    <div class="explain-row">
+                        <div class="explain-row-title">${index + 1}. ${escapeHtml(item.kind)} from ${escapeHtml(item.span)}</div>
+                        <div class="explain-row-body">
+                            Selected token: <strong>${escapeHtml(item.selected.word)}</strong> |
+                            Model confidence: <strong>${selectedConfidence}%</strong> |
+                            Alternatives: ${escapeHtml(alternativesText)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <details class="explain-toggle">
+                    <summary>Explain prediction mapping</summary>
+                    <div class="explain-content">
+                        ${mixedNote}
+                        ${rows}
+                    </div>
+                </details>
+            `;
+        }
+
+        function renderPredictionCard(label, kind, predictions, outputMode) {
+            const { primary, alternatives } = splitPrimaryAndAlternatives(predictions, outputMode);
+            const rows = primary.map((p) => createConfidenceBar(p.word, p.confidence)).join('');
+            const alternativesHtml = alternatives.length > 0
+                ? `
+                    <details class="alt-toggle">
+                        <summary>Show alternatives (${alternatives.length})</summary>
+                        <div class="confidence-bar-container">
+                            ${alternatives.map((p) => createConfidenceBar(p.word, p.confidence)).join('')}
+                        </div>
+                    </details>
+                `
+                : '';
+
+            return `
+                <div class="prediction-item">
+                    <div class="prediction-item-head">
+                        <span class="prediction-item-label">${escapeHtml(label)}</span>
+                        <span class="prediction-item-type">${escapeHtml(kind)}</span>
+                    </div>
+                    <div class="confidence-bar-container">${rows}</div>
+                    ${alternativesHtml}
+                </div>
+            `;
+        }
+
+        function renderPredictionSection(title, badge, cards, fullWidth = false) {
+            const widthClass = fullWidth ? ' full-width' : '';
+            return `
+                <section class="prediction-section${widthClass}">
+                    <div class="prediction-section-header">
+                        <span class="section-badge">${escapeHtml(badge)}</span>
+                        <h3>${escapeHtml(title)}</h3>
+                    </div>
+                    <div class="prediction-grid">${cards}</div>
+                </section>
+            `;
+        }
+
+        function createWordCards(predictions, outputMode) {
+            if (!Array.isArray(predictions) || predictions.length === 0) return '';
+            if (predictions[0] && predictions[0].position) {
+                return predictions.map(blank => renderPredictionCard(`Blank ${blank.position}`, 'WORD', blank.predictions || [], outputMode)).join('');
+            }
+            return renderPredictionCard('Blank 1', 'WORD', predictions, outputMode);
+        }
+
+        function createLetterCards(predictions, outputMode) {
+            if (!Array.isArray(predictions) || predictions.length === 0) return '';
+            return predictions.map(item => renderPredictionCard(`"${item.pattern}"`, 'LETTER', item.predictions || [], outputMode)).join('');
+        }
+
+        function displayResult(data, processingTime = null, serverResponse = null) {
+            const resultDiv = document.getElementById('result');
+            setFeedbackContext(data, serverResponse);
+            const metaParts = [];
+            if (processingTime !== null && processingTime !== undefined) {
+                metaParts.push(`Processed in ${(processingTime / 1000).toFixed(2)}s`);
+            }
+            if (serverResponse && Number.isFinite(Number(serverResponse.processing_time_ms))) {
+                metaParts.push(`Backend: ${Number(serverResponse.processing_time_ms)} ms`);
+            }
+            if (data && data.system && data.system.model_name) {
+                metaParts.push(`Model: ${data.system.model_name}`);
+            }
+            metaParts.push(`Mode: ${formatModeLabel(data.output_mode)}`);
+            metaParts.push(`Type: ${formatTypeLabel(data.type)}`);
+
+            let html = '<div class="result-header"><h2>Analysis Results</h2><span class="result-status">Completed</span></div>';
+            html += '<div class="result-body">';
+            html += `<div class="result-meta">${metaParts.join(' | ')}</div>`;
+
+            html += '<div class="solved-section">';
+            html += '<div class="solved-label">Solved Sentence</div>';
+            if (data.reconstructed_sentence) {
+                const highlighted = renderHighlightedReconstruction(data.input, data.reconstructed_sentence);
+                html += `<div class="reconstructed">${highlighted || escapeHtml(data.reconstructed_sentence)}</div>`;
+            } else {
+                html += '<div class="reconstructed">No full reconstructed sentence is available for this prediction mode.</div>';
+            }
+            const reportDisabled = data.reconstructed_sentence ? '' : 'disabled';
+            html += `<button class="report-btn" onclick="openFeedbackModal()" ${reportDisabled}>Report Error</button>`;
+            html += renderExplainSection(data);
+            html += '</div>';
+
+            const sections = [];
+
+            if (data.type === 'mixed') {
+                const wordCards = createWordCards(data.missing_words, data.output_mode);
+                const letterCards = createLetterCards(data.missing_letters, data.output_mode);
+                if (wordCards) sections.push(renderPredictionSection('Missing Words', 'W', wordCards));
+                if (letterCards) sections.push(renderPredictionSection('Missing Letters', 'L', letterCards));
+            } else if (data.type === 'missing_words' && data.predictions) {
+                const wordCards = createWordCards(data.predictions, data.output_mode);
+                if (wordCards) sections.push(renderPredictionSection('Missing Words', 'W', wordCards, true));
+            } else if (data.type === 'missing_letters' && data.predictions) {
+                const letterCards = createLetterCards(data.predictions, data.output_mode);
+                if (letterCards) sections.push(renderPredictionSection('Missing Letters', 'L', letterCards, true));
+            }
+
+            if (sections.length > 0) {
+                html += `<div class="prediction-sections">${sections.join('')}</div>`;
+            }
+
+            html += '</div>';
+            resultDiv.innerHTML = html;
+            resultDiv.classList.add('active');
+        }
+
+        function createConfidenceBar(word, confidence) {
+            const numericConfidence = Number(confidence);
+            const safeConfidence = Number.isFinite(numericConfidence) ? numericConfidence : 0;
+            const boundedConfidence = Math.min(100, Math.max(0, safeConfidence));
+            const width = boundedConfidence;
+            const displayValue = Number.isFinite(numericConfidence)
+                ? Number(boundedConfidence.toFixed(1)).toString()
+                : '0';
+
+            let colorClass = 'confidence-low';
+            if (boundedConfidence >= 70) {
+                colorClass = 'confidence-high';
+            } else if (boundedConfidence >= 40) {
+                colorClass = 'confidence-medium';
+            }
+
+            return `
+                <div class="confidence-bar-wrapper">
+                    <div class="confidence-header">
+                        <span class="confidence-word">${escapeHtml(word)}</span>
+                        <span class="confidence-value">${displayValue}% model confidence</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill ${colorClass}" style="width: ${width}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="error"><strong> Error:</strong> ${escapeHtml(message)}</div>`;
+            resultDiv.classList.add('active');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // keyboard shortcuts enabled for submission
+        document.getElementById('sentence').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('submitBtn').click();
+            }
+        });
+
+        // initilization
+
+        async function initializeApp() {
+            loadDarkMode();
+            try {
+                await refreshCsrfToken();
+            } catch (error) {
+                console.warn('CSRF token initialization failed:', error.message);
+            }
+            await refreshAuth();
+            await loadHistory();
+            updateCacheStatus();
+            await handleRouteChange();
+        }
+
+        window.addEventListener('hashchange', () => {
+            handleRouteChange();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const brand = document.querySelector('.navbar-brand');
+            const userPill = document.getElementById('userPill');
+            [brand, userPill].forEach((el) => {
+                if (!el) return;
+                el.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        el.click();
+                    }
+                });
+            });
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
+
+
+
+
